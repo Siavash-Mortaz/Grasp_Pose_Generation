@@ -24,11 +24,19 @@ To gain a better understanding of the dataset, random objects from various frame
 
 ## Extracting, pre-processing and preparation Data
 The process started with selecting suitable data from the HO-3D_v3 dataset, containing 3D hand-object interaction data essential for training generative models. Key features, including hand and object poses, were extracted and saved in pickle files ("hand_poses.pkl" and "object_infos.pkl") for future use. The data was then preprocessed using the StandardScaler from sklearn.preprocessing to standardize it, crucial for effective model training. After splitting the data into training, validation, and testing sets (60:20:20 ratio), the normalized data and scalers were saved for consistent input scaling during predictions, ensuring model accuracy.
+![Preprocessing Data](https://github.com/Siavash-Mortaz/Grasp_Pose_Generation/blob/main/slides/Pre_Data01.JPG)
+![Splitting Data](https://github.com/Siavash-Mortaz/Grasp_Pose_Generation/blob/main/slides/Pre_Data02.JPG)
+
 ## Models Architecture
 The goal was to develop an autoencoder capable of encoding information about hand poses and objects, which could later be reconstructed from the encoded representation. The underlying assumption was that, after sufficient training, the model would automatically extract hand pose information from the object data.
 
 Initially, three different Conditional Variational Autoencoder models—referred to as CVAE_01, CVAE_02, and CVAE_03—were created. All three models were trained under the same conditions, with identical latent space dimensionality, learning rate, and number of epochs. Among them, CVAE_02 demonstrated superior performance, prompting further enhancements based on this model. Two new variations, CVAE_02_1 and CVAE_02_2, were developed by adding additional layers to CVAE_02. Additionally, CVAE_02_3 was designed by removing the conditional input from the encoder, simplifying the model while preserving its performance, with only the decoder utilizing the conditional input.
-![Preprocessing Data](https://github.com/Siavash-Mortaz/Grasp_Pose_Generation/blob/main/slides/Pre_Data01.JPG)
+![CVAE_01](https://github.com/Siavash-Mortaz/Grasp_Pose_Generation/blob/main/slides/CVAE_01.JPG)
+![CVAE_02](https://github.com/Siavash-Mortaz/Grasp_Pose_Generation/blob/main/slides/CVAE_02.JPG)
+![CVAE_03](https://github.com/Siavash-Mortaz/Grasp_Pose_Generation/blob/main/slides/CVAE_03.JPG)
+![CVAE_02_1](https://github.com/Siavash-Mortaz/Grasp_Pose_Generation/blob/main/slides/CVAE_02_1.JPG)
+![CVAE_02_2](https://github.com/Siavash-Mortaz/Grasp_Pose_Generation/blob/main/slides/CVAE_02_2.JPG)
+![CVAE_02_3](https://github.com/Siavash-Mortaz/Grasp_Pose_Generation/blob/main/slides/CVAE_02_3.JPG)
 
 
 ## Training Progress
