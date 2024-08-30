@@ -28,6 +28,9 @@ The process started with selecting suitable data from the HO-3D_v3 dataset, cont
 The goal was to develop an autoencoder capable of encoding information about hand poses and objects, which could later be reconstructed from the encoded representation. The underlying assumption was that, after sufficient training, the model would automatically extract hand pose information from the object data.
 
 Initially, three different Conditional Variational Autoencoder models—referred to as CVAE_01, CVAE_02, and CVAE_03—were created. All three models were trained under the same conditions, with identical latent space dimensionality, learning rate, and number of epochs. Among them, CVAE_02 demonstrated superior performance, prompting further enhancements based on this model. Two new variations, CVAE_02_1 and CVAE_02_2, were developed by adding additional layers to CVAE_02. Additionally, CVAE_02_3 was designed by removing the conditional input from the encoder, simplifying the model while preserving its performance, with only the decoder utilizing the conditional input.
+![Preprocessing Data](https://github.com/Siavash-Mortaz/Grasp_Pose_Generation/blob/main/slides/Pre_Data01.JPG)
+
+
 ## Training Progress
 The CVAE models—CVAE_01, CVAE_02, and CVAE_03—were trained with a latent space of 32, a learning rate of 0.001, and for 50 epochs. CVAE_03 was specifically trained using hand and object data, later incorporating random noise into the hand information. The models' weights were stored in corresponding pickle files. Key metrics, such as train loss, validation loss, and various hand pose errors, were captured and saved.
 
