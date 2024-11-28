@@ -50,5 +50,5 @@ Subsequent runs of CVAE_02 with additional layers (CVAE_02_1 and CVAE_02_2) show
 
 In a final experiment, CVAE_02_2 was tested without the conditional decoder component, revealing that its removal had minimal impact on performance. This led to the adoption of CVAE_02_3 as the final model for regenerating hand postures based on object information, successfully simulating human-like hand movements and demonstrating the model's effectiveness. The model's predictions were further validated using the YCB dataset embedded in the HO3D dataset, allowing for accurate visualization of hand-object interactions.
 ## Visualization the Results
-![CVAE_02_2](https://github.com/Siavash-Mortaz/Grasp_Pose_Generation/blob/main/slides/MC1.GIF)
-![CVAE_02_3](https://github.com/Siavash-Mortaz/Grasp_Pose_Generation/blob/main/slides/ND2.GIF)
+![MC1](https://github.com/Siavash-Mortaz/Grasp_Pose_Generation/blob/main/slides/MC1.gif)
+![ND2](https://github.com/Siavash-Mortaz/Grasp_Pose_Generation/blob/main/slides/ND2.gif)
