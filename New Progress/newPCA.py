@@ -10,7 +10,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 # import seaborn as sns
 from sklearn.decomposition import PCA
-from Models_Trains.all_models import CVAE_02_4
+from Models_Trains.all_models import CVAE_02_4_3
+
 
 def visualize_hand_2d(handTrans, handJoints3D):
 
@@ -84,7 +85,7 @@ def visualize_hand_3d(handJoints3D, handTrans, handPose):
 
     plt.show()
 
-model_weight=r"D:\UNI\Sem3\Dissertation\My effort\effort_02 - Git - Copy\Models_Trains\final_model_5.pth"
+model_weight=r"D:\UNI\Sem3\Dissertation\My effort\effort_02 - Git - Copy\Models_Trains\final_model_8_8.pth"
 hand_object_data=r"D:\UNI\Sem3\Dissertation\My effort\effort_02 - Git - Copy\PreprocessData\hand_object_data.pkl"
 scaler_file=r"D:\UNI\Sem3\Dissertation\My effort\effort_02 - Git - Copy\PreprocessData\scalers.pkl"
 
@@ -137,7 +138,7 @@ print(f'Latent Dim: {latent_dim}')
 print(f'Condition(Object) Dim: {condition_dim}')
 
 # Define and load the CVAE_02_4 model
-model = CVAE_02_4(input_dim, latent_dim, condition_dim,num_gaussians)
+model = CVAE_02_4_3(input_dim, latent_dim, condition_dim,num_gaussians)
 model.load_state_dict(torch.load(model_weight))  # Load latest pre-trained weights
 model.eval()
 
@@ -244,10 +245,45 @@ plt.tight_layout()
 plt.show()
 
 
+
+from mpl_toolkits.mplot3d import Axes3D  # Needed for 3D plotting
+
+# Convert PCA results to a DataFrame
+pca_df = pd.DataFrame(
+    pca_results[:, :],
+    columns=['PC1', 'PC2', 'PC3', 'PC4', 'PC5',
+             'PC6', 'PC7', 'PC8', 'PC9', 'PC10',
+             'PC11', 'PC12', 'PC13', 'PC14', 'PC15', 'PC16']
+)
+pca_df['Object Name'] = object_names  # Add object names for grouping
+
+# Unique object names for plotting
+unique_objects = np.unique(object_names)
+
+# Create 3D figure
+fig = plt.figure(figsize=(10, 8))
+ax = fig.add_subplot(111, projection='3d')
+
+# Plot PCA results for each object
+for obj_name in unique_objects:
+    subset = pca_df[pca_df['Object Name'] == obj_name]
+    ax.scatter(subset['PC1'], subset['PC2'], subset['PC3'], label=obj_name, alpha=0.6)
+
+# Add axis labels, legend, and title
+ax.set_xlabel("Principal Component 1")
+ax.set_ylabel("Principal Component 2")
+ax.set_zlabel("Principal Component 3")
+plt.title("3D PCA of Latent Space Grouped by Object Names")
+plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left', title="Object Names")
+plt.tight_layout()
+plt.show()
+
+
+
 from sklearn.cluster import KMeans
 
 # Apply K-Means clustering to PCA results (choosing 3 clusters)
-num_clusters = 9
+num_clusters = 4
 kmeans = KMeans(n_clusters=num_clusters, random_state=42)
 clusters = kmeans.fit_predict(pca_results)
 
@@ -260,6 +296,40 @@ plt.title("PCA of Latent Space with Clusters")
 plt.legend(*scatter.legend_elements(), title="Clusters")
 plt.tight_layout()
 plt.show()
+
+#=============================
+
+# First 3 PCs to use
+n_components_to_use = 3
+pca_data = pca_results[:, :n_components_to_use]
+
+wcss = []
+for i in range(1, 11):  # Test k from 1 to 10
+    kmeans = KMeans(n_clusters=i, init='k-means++', random_state=42)
+    kmeans.fit(pca_data)
+    wcss.append(kmeans.inertia_)  # Inertia is the WCSS
+
+# Plot the elbow graph
+plt.plot(range(1, 11), wcss)
+plt.title('Elbow Method')
+plt.xlabel('Number of clusters')
+plt.ylabel('WCSS')
+plt.show()
+
+# Based on the elbow, choose k and perform k-means
+k = 4
+kmeans = KMeans(n_clusters=k, init='k-means++', random_state=42)
+labels = kmeans.fit_predict(pca_data)
+
+# Visualize in 3D (using the first 3 PCs)
+from mpl_toolkits.mplot3d import Axes3D
+
+fig = plt.figure()
+ax = fig.add_subplot(111, projection='3d')
+ax.scatter(pca_data[:, 0], pca_data[:, 1], pca_data[:, 2], c=labels)
+plt.show()
+#======================
+
 
 # Apply K-Means clustering to PCA results (choosing 9 clusters)
 num_clusters = 9
@@ -286,6 +356,70 @@ plt.show()
 # Print centroid coordinates
 print("Centroids of K-Means clusters:")
 print(centroids)
+
+# # 3D : 3 PC
+# from sklearn.cluster import KMeans
+# import matplotlib.pyplot as plt
+# from mpl_toolkits.mplot3d import Axes3D  # for 3D plotting
+# import numpy as np
+#
+# # Assume 'pca_results' is an array with shape (n_samples, n_components).
+# # In this example, we only use the first 3 components for clustering and plotting.
+# pca_results_3d = pca_results[:, :3]
+#
+# # Number of clusters
+# num_clusters = 9
+#
+# # Apply K-Means clustering to the first three principal components
+# kmeans = KMeans(n_clusters=num_clusters, random_state=42)
+# clusters = kmeans.fit_predict(pca_results_3d)
+#
+# # Get cluster centroids
+# centroids = kmeans.cluster_centers_
+#
+# # Create a 3D figure
+# fig = plt.figure(figsize=(10, 8))
+# ax = fig.add_subplot(111, projection='3d')
+#
+# # Plot the data points with cluster colors
+# scatter = ax.scatter(
+#     pca_results_3d[:, 0],
+#     pca_results_3d[:, 1],
+#     pca_results_3d[:, 2],
+#     c=clusters,
+#     cmap='Set1',
+#     alpha=0.7,
+#     label="Data Points"
+# )
+#
+# # Plot the centroids
+# ax.scatter(
+#     centroids[:, 0],
+#     centroids[:, 1],
+#     centroids[:, 2],
+#     c=range(num_clusters),
+#     cmap='Set1',
+#     marker='X',
+#     s=200,
+#     edgecolors='k',
+#     label="Centroids"
+# )
+#
+# # Label axes and add a title
+# ax.set_xlabel("Principal Component 1")
+# ax.set_ylabel("Principal Component 2")
+# ax.set_zlabel("Principal Component 3")
+# plt.title("3D PCA of Latent Space with Clusters and Centroids")
+#
+# # Show legend and final plot
+# plt.legend()
+# plt.tight_layout()
+# plt.show()
+
+# Print centroid coordinates
+print("Centroids of K-Means clusters:")
+print(centroids)
+
 
 
 
