@@ -53,7 +53,7 @@ raw_data/
 # Outputs (commented out to allow pushing plots and logs)
 # outputs/
 # logs/
-*.log
+# *.log  # Commented out - allow log files if needed
 
 # OS
 .DS_Store
