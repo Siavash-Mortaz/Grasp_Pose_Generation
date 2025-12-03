@@ -1,54 +1,372 @@
-
 # Grasp Pose Generation: Engineering Generative Models to Synthesize Human Hand Actions Based on Object Affordances for Robots
 
-This project focuses on developing generative models to synthesize human-like hand actions for robotic systems using knowledge of object affordances. It primarily utilizes Conditional Variational Autoencoders (CVAE) to autonomously generate hand motions based on the perceived functions of objects, without explicit programming. By training these models on the HO-3D_v3 dataset, which includes detailed 3D hand-object interactions, the research aims to enhance the adaptability and efficiency of robots in performing real-world tasks, such as human-robot interaction and autonomous object manipulation. The work presents a robust CVAE architecture that effectively incorporates object information, demonstrating improved generalization across various objects and scenarios. It highlights the potential for generative models to enable more dynamic, flexible, and autonomous robotic behaviors, marking a significant advancement in the field of robotics.
+[![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
+[![PyTorch](https://img.shields.io/badge/PyTorch-1.9+-orange.svg)](https://pytorch.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
+A research project that develops **Conditional Variational Autoencoders (CVAE)** to autonomously generate human-like hand poses for robotic systems based on object affordances. This work enables robots to perform dynamic, flexible, and autonomous object manipulation tasks without explicit programming.
 
-## Dataset
-Dataset is taken from (Hampali, Shreyas; Rad, Mahdi; Oberweger, Markus; Lepetit, Vincent, 2020). HO-3D_v3 is specifically designed for 3D pose annotation for interacting hand–object. The dataset contains 103,462 RGB images along with their 3D hand–object poses and corresponding depth maps. The dataset contains 10 human subjects, 3 females, and 7 men; further, it contains 10 objects selected from the YCB dataset. MANO model is selected for estimation of hand pose. The Dataset is available in https://www.tugraz.at/institute/icg/research/team-lepetit/research-projects/hand-object-3d-pose-annotation/
+## 📋 Table of Contents
+
+- [Overview](#overview)
+- [Key Features](#key-features)
+- [Installation](#installation)
+- [Quick Start](#quick-start)
+- [Project Structure](#project-structure)
+- [Model Architectures](#model-architectures)
+- [Dataset](#dataset)
+- [Usage](#usage)
+- [Results](#results)
+- [Documentation](#documentation)
+- [Citation](#citation)
+- [Contributing](#contributing)
+- [License](#license)
+
+## 🎯 Overview
+
+This project was developed as part of an **MSc in Artificial Intelligence** at **Sheffield Hallam University**, where it received a **distinction** grade. The dissertation addresses the challenge of enabling robots to perform human-like hand actions by learning from object affordances. Traditional robotic systems require explicit programming for each object and task, limiting their adaptability. This work presents a generative approach using CVAE models that can:
+
+- **Autonomously generate hand poses** based on object information
+- **Learn from 3D hand-object interactions** in the HO-3D_v3 dataset
+- **Generalize across different objects** without task-specific programming
+- **Enable dynamic robotic behaviors** for human-robot interaction and autonomous manipulation
+
+The research demonstrates that generative models can effectively capture the relationship between object affordances and hand configurations, enabling more natural and adaptive robotic manipulation.
+
+📄 **Full Dissertation Report**: For detailed methodology, experimental results, and analysis, see the [complete dissertation report](docs/myDissertationReport.pdf).
+
+## ✨ Key Features
+
+- **Multiple CVAE Architectures**: Six different model variants (CVAE_01 through CVAE_02_3) with varying complexities
+- **Comprehensive Data Pipeline**: Complete data extraction, preprocessing, and loading utilities
+- **Robust Training Framework**: Flexible training scripts with configurable hyperparameters
+- **Evaluation Metrics**: Built-in metrics for model performance assessment
+- **Visualization Tools**: 3D visualization of hand-object interactions
+- **Standard Python Package**: Properly structured, installable package following best practices
+
+## 🚀 Installation
+
+### Prerequisites
+
+- Python 3.8 or higher
+- CUDA-capable GPU (recommended for training)
+
+### Step 1: Clone the Repository
 
 ```bash
-  @INPROCEEDINGS{hampali2020honnotate,
-title={HOnnotate: A method for 3D Annotation of Hand and Object Poses},
-author={Shreyas Hampali and Mahdi Rad and Markus Oberweger and Vincent Lepetit},
-booktitle = {CVPR},
-year = {2020}
+git clone https://github.com/Siavash-Mortaz/Grasp_Pose_Generation.git
+cd Grasp_Pose_Generation
+```
+
+### Step 2: Install Dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+### Step 3: Install Package (Development Mode)
+
+```bash
+pip install -e .
+```
+
+## 🏃 Quick Start
+
+### Training a Model
+
+```bash
+python scripts/train.py --model cvae_02_3 --epochs 50 --batch_size 64 --latent_dim 32
+```
+
+### Evaluating a Model
+
+```bash
+python scripts/evaluate.py \
+    --model cvae_02_3 \
+    --checkpoint models/checkpoints/cvae_02_3_weights.pth \
+    --data_path data/hand_object_data.pkl
+```
+
+### Using the Package
+
+```python
+from grasp_pose_generation.models import CVAE_02_3
+from grasp_pose_generation.training import loading_data
+from grasp_pose_generation.evaluation import mean_squared_error, mean_absolute_error
+
+# Load preprocessed data
+hand_train, hand_val, hand_test, obj_train, obj_val, obj_test, \
+    train_dataset, val_dataset, test_dataset, train_loader, val_loader, test_loader, obj_names = \
+    loading_data('data/hand_object_data.pkl', batch_size=64)
+
+# Initialize model
+model = CVAE_02_3(input_dim=114, latent_dim=32, condition_dim=30)
+
+# Train and evaluate...
+```
+
+## 📁 Project Structure
+
+```
+grasp_pose_generation/
+├── src/
+│   └── grasp_pose_generation/      # Main package
+│       ├── models/                 # CVAE model definitions
+│       ├── data/                   # Data extraction and preprocessing
+│       ├── training/               # Training utilities and data loaders
+│       ├── evaluation/             # Evaluation metrics
+│       └── visualization/          # Visualization utilities
+├── scripts/                        # Executable scripts
+│   ├── train.py                   # Training script
+│   └── evaluate.py                # Evaluation script
+├── models/
+│   └── checkpoints/               # Saved model weights (.pth files)
+├── data/                          # Data files
+│   └── raw/                       # Raw dataset files
+├── outputs/                       # Outputs
+│   ├── plots/                     # Generated plots and visualizations
+│   └── logs/                      # Training logs and metrics
+├── tests/                         # Unit tests
+├── docs/                          # Documentation
+├── images/                        # Images and diagrams for documentation
+├── requirements.txt               # Python dependencies
+├── setup.py                       # Package setup
+└── pyproject.toml                 # Modern Python packaging config
+```
+
+## 🏗️ Model Architectures
+
+The project implements six CVAE variants, each with different architectural choices:
+
+### CVAE_01
+- **Architecture**: 3 layers (encoder/decoder)
+- **Features**: 2 linear layers + 1 ReLU layer per encoder/decoder
+- **Use Case**: Baseline model
+
+### CVAE_02
+- **Architecture**: 5 layers (encoder/decoder)
+- **Features**: 3 linear layers + 2 ReLU layers per encoder/decoder
+- **Performance**: Best initial performance among baseline models
+
+### CVAE_03
+- **Architecture**: 9 layers (encoder/decoder)
+- **Features**: Batch normalization + Dropout layers for regularization
+- **Use Case**: Regularization experiments
+
+### CVAE_02_1
+- **Architecture**: 7 layers (encoder/decoder)
+- **Features**: Extended version of CVAE_02 with additional layers
+- **Performance**: Similar to CVAE_02
+
+### CVAE_02_2
+- **Architecture**: 9 layers (encoder/decoder)
+- **Features**: Further extended architecture
+- **Performance**: Slight improvement over CVAE_02_1
+
+### CVAE_02_3 ⭐ (Recommended)
+- **Architecture**: 9 layers (encoder/decoder)
+- **Features**: Conditional input removed from encoder (only in decoder)
+- **Performance**: Final optimized model with simplified architecture
+- **Use Case**: Production-ready model
+
+### Architecture Diagrams
+
+![CVAE_01](images/CVAE_01.JPG)
+![CVAE_02](images/CVAE_02.JPG)
+![CVAE_03](images/CVAE_03.JPG)
+![CVAE_02_1](images/CVAE_02_1.JPG)
+![CVAE_02_2](images/CVAE_02_2.JPG)
+![CVAE_02_3](images/CVAE_02_3.JPG)
+
+## 📊 Dataset
+
+This project uses the **HO-3D_v3** dataset, a comprehensive dataset for 3D hand-object pose annotation.
+
+### Dataset Details
+
+- **Total Images**: 103,462 RGB images
+- **Annotations**: 3D hand-object poses + depth maps
+- **Subjects**: 10 human subjects (3 females, 7 males)
+- **Objects**: 10 objects from the YCB dataset
+- **Hand Model**: MANO model for hand pose estimation
+
+### Citation
+
+```bibtex
+@INPROCEEDINGS{hampali2020honnotate,
+    title={HOnnotate: A method for 3D Annotation of Hand and Object Poses},
+    author={Shreyas Hampali and Mahdi Rad and Markus Oberweger and Vincent Lepetit},
+    booktitle={CVPR},
+    year={2020}
 }
 ```
-To gain a better understanding of the dataset, random objects from various frames of the HO-3D_v3 dataset were applied to the 3D point data of objects in the YCB dataset. This approach helps explore how object rotation and translation work in combination between the YCB dataset and the HO-3D_v3 dataset. Similarly, it allows for a deeper insight into the 3D hand joint poses, along with their rotation and translation, across different objects and frames.
 
+### Dataset Access
 
+The dataset is available at: [HO-3D Dataset](https://1drv.ms/f/s!AsG9HA3ULXQRlFy5tCZXahAe3bEV?e=BevrKO)
 
+### Data Preprocessing
 
+The data preprocessing pipeline includes:
 
+1. **Extraction**: Extract hand poses and object information from HO-3D_v3 dataset
+2. **Normalization**: StandardScaler normalization for all features
+3. **Splitting**: 60:20:20 train/validation/test split
+4. **Feature Combination**: Hand pose (48D) + translation (3D) + joints (63D) = 114D
+5. **Object Features**: Translation (3D) + rotation (3D) + corners (24D) = 30D
 
-## Extracting, pre-processing and preparation Data
-The process started with selecting suitable data from the HO-3D_v3 dataset, containing 3D hand-object interaction data essential for training generative models. Key features, including hand and object poses, were extracted and saved in pickle files ("hand_poses.pkl" and "object_infos.pkl") for future use. The data was then preprocessed using the StandardScaler from sklearn.preprocessing to standardize it, crucial for effective model training. After splitting the data into training, validation, and testing sets (60:20:20 ratio), the normalized data and scalers were saved for consistent input scaling during predictions, ensuring model accuracy.
-![Preprocessing Data](https://github.com/Siavash-Mortaz/Grasp_Pose_Generation/blob/main/slides/Pre_Data01.JPG)
-![Splitting Data](https://github.com/Siavash-Mortaz/Grasp_Pose_Generation/blob/main/slides/Pre_Data02.JPG)
+![Preprocessing Data](images/Pre_Data01.JPG)
+![Splitting Data](images/Pre_Data02.JPG)
 
-## Models Architecture
-The goal was to develop an autoencoder capable of encoding information about hand poses and objects, which could later be reconstructed from the encoded representation. The underlying assumption was that, after sufficient training, the model would automatically extract hand pose information from the object data.
+## 💻 Usage
 
-Initially, three different Conditional Variational Autoencoder models—referred to as CVAE_01, CVAE_02, and CVAE_03—were created. All three models were trained under the same conditions, with identical latent space dimensionality, learning rate, and number of epochs. Among them, CVAE_02 demonstrated superior performance, prompting further enhancements based on this model. Two new variations, CVAE_02_1 and CVAE_02_2, were developed by adding additional layers to CVAE_02. Additionally, CVAE_02_3 was designed by removing the conditional input from the encoder, simplifying the model while preserving its performance, with only the decoder utilizing the conditional input.
-![CVAE_01](https://github.com/Siavash-Mortaz/Grasp_Pose_Generation/blob/main/slides/CVAE_01.JPG)
-![CVAE_02](https://github.com/Siavash-Mortaz/Grasp_Pose_Generation/blob/main/slides/CVAE_02.JPG)
-![CVAE_03](https://github.com/Siavash-Mortaz/Grasp_Pose_Generation/blob/main/slides/CVAE_03.JPG)
-![CVAE_02_1](https://github.com/Siavash-Mortaz/Grasp_Pose_Generation/blob/main/slides/CVAE_02_1.JPG)
-![CVAE_02_2](https://github.com/Siavash-Mortaz/Grasp_Pose_Generation/blob/main/slides/CVAE_02_2.JPG)
-![CVAE_02_3](https://github.com/Siavash-Mortaz/Grasp_Pose_Generation/blob/main/slides/CVAE_02_3.JPG)
+### Data Preprocessing
 
+```python
+from grasp_pose_generation.data import load_ho3d_best_info, preprocess_data
 
-## Training Progress
-The CVAE models—CVAE_01, CVAE_02, and CVAE_03—were trained with a latent space of 32, a learning rate of 0.001, and for 50 epochs. CVAE_03 was specifically trained using hand and object data, later incorporating random noise into the hand information. The models' weights were stored in corresponding pickle files. Key metrics, such as train loss, validation loss, and various hand pose errors, were captured and saved.
+# Extract data from HO-3D dataset
+hand_poses, object_infos = load_ho3d_best_info(data_dir='path/to/ho3d', split='train')
 
-Among the models, CVAE_02 demonstrated the best performance, showing the lowest loss and error metrics. In contrast, CVAE_03 showed minimal performance variation, even when noise was added, suggesting the noise had little impact. This highlighted CVAE_02 as the most effective model.
+# Preprocess and save
+hand_data, obj_data, obj_names, scalers = preprocess_data(hand_poses, object_infos)
+```
 
-Further refinement of CVAE_02 involved increasing the latent space to 64 and extending the training epochs, which further reduced errors. This fine-tuning yielded strong results, encouraging continued development and optimization.
+### Training
 
-Subsequent runs of CVAE_02 with additional layers (CVAE_02_1 and CVAE_02_2) showed similar performance, indicating that the added complexity did not significantly affect the model's behavior. CVAE_02_2 showed a slight performance improvement.
+```bash
+# Basic training
+python scripts/train.py --model cvae_02_3 --epochs 50
 
-In a final experiment, CVAE_02_2 was tested without the conditional decoder component, revealing that its removal had minimal impact on performance. This led to the adoption of CVAE_02_3 as the final model for regenerating hand postures based on object information, successfully simulating human-like hand movements and demonstrating the model's effectiveness. The model's predictions were further validated using the YCB dataset embedded in the HO3D dataset, allowing for accurate visualization of hand-object interactions.
-## Visualization the Results
-![MC1](https://github.com/Siavash-Mortaz/Grasp_Pose_Generation/blob/main/slides/MC1.gif)
-![ND2](https://github.com/Siavash-Mortaz/Grasp_Pose_Generation/blob/main/slides/ND2.gif)
+# Advanced training with custom parameters
+python scripts/train.py \
+    --model cvae_02_3 \
+    --epochs 100 \
+    --batch_size 128 \
+    --latent_dim 64 \
+    --lr 0.0001 \
+    --data_path data/hand_object_data.pkl \
+    --output_dir models/checkpoints
+```
+
+### Evaluation
+
+```bash
+python scripts/evaluate.py \
+    --model cvae_02_3 \
+    --checkpoint models/checkpoints/cvae_02_3_weights.pth \
+    --data_path data/hand_object_data.pkl \
+    --batch_size 64 \
+    --latent_dim 32
+```
+
+### Visualization
+
+```python
+from grasp_pose_generation.visualization.vis_hand_3D import plot_hand_3d
+from grasp_pose_generation.visualization.vis_object_3D import load_xyz, apply_transformations
+
+# Visualize hand pose in 3D
+plot_hand_3d(hand_joints, hand_trans, hand_pose, obj_name)
+
+# For object visualization, use the scripts in outputs/plots/ or 
+# refer to the visualization module for custom implementations
+```
+
+## 📈 Results
+
+### Model Performance
+
+- **CVAE_02** demonstrated the best performance among initial models
+- **CVAE_02_3** achieved optimal balance between complexity and performance
+- Models successfully generate human-like hand poses from object information
+- Validation on YCB dataset objects shows good generalization
+
+### Key Findings
+
+1. **Architecture Simplification**: Removing conditional input from encoder (CVAE_02_3) maintained performance while reducing complexity
+2. **Generalization**: Models generalize well across different objects from the YCB dataset
+3. **Latent Space**: Increasing latent dimension from 32 to 64 improved reconstruction accuracy
+4. **Regularization**: Dropout and batch normalization (CVAE_03) showed minimal impact on performance
+
+### Training Metrics
+
+All training metrics (losses, errors) are saved in `outputs/logs/` as pickle files:
+- Training loss
+- Validation loss
+- Reconstruction error
+- Hand pose error
+- Hand joints error
+- Hand translation error
+
+### Visualization Results
+
+The models successfully generate human-like hand poses based on object affordances. Below are example visualizations of the generated hand-object interactions:
+
+![MC1](images/MC1.gif)
+![ND2](images/ND2.gif)
+
+## 📚 Documentation
+
+### Dissertation Report
+
+The complete dissertation report with detailed methodology, experimental setup, results, and analysis is available:
+
+📄 [Download Dissertation Report (PDF)](docs/myDissertationReport.pdf)
+
+## 📚 Citation
+
+If you use this code or reference this work, please cite:
+
+```bibtex
+@misc{grasp_pose_generation,
+    title={Grasp Pose Generation: Engineering Generative Models to Synthesize Human Hand Actions Based on Object Affordances for Robots},
+    author={Siavash Mortaz Hejri},
+    year={2024},
+    howpublished={\url{https://github.com/Siavash-Mortaz/Grasp_Pose_Generation}}
+}
+```
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request. For major changes, please open an issue first to discuss what you would like to change.
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+## 🧪 Testing
+
+Run the test suite:
+
+```bash
+# Install test dependencies
+pip install -e ".[dev]"
+
+# Run all tests
+pytest
+
+# Run with coverage
+pytest --cov=src/grasp_pose_generation --cov-report=html
+```
+
+## 📝 License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## 🙏 Acknowledgments
+
+- **Supervisors**: I would like to thank Dr. Alejandro Jiménez Rodríguez and Dr. Hamed Pourfannan for their guidance and supervision during this research at Sheffield Hallam University.
+- **HO-3D Dataset**: Hampali et al. for providing the comprehensive hand-object interaction dataset
+- **MANO Model**: For hand pose representation
+- **YCB Dataset**: For object models used in validation
+
+## 📧 Contact
+
+For questions or inquiries, please open an issue on GitHub or contact [Siavash.Mortaz.Hejri@gmail.com](mailto:Siavash.Mortaz.Hejri@gmail.com).
+
+---
+
+**Note**: This is a research project. For production use, additional testing and validation are recommended.
