@@ -36,33 +36,33 @@ ENV/
 # Jupyter Notebook
 .ipynb_checkpoints
 
-# Data files
-*.pkl
-*.pth
+# Data files (only ignore raw data, not processed outputs)
+# *.pkl  # Commented out - allow training logs
+# *.pth  # Commented out - allow model weights
 *.h5
 *.hdf5
-data/
+data/raw/
 raw_data/
 
-# Model checkpoints
-models/checkpoints/
-*.pth
-*.pt
-*.ckpt
+# Model checkpoints (commented out to allow pushing)
+# models/checkpoints/
+# *.pth
+# *.pt
+# *.ckpt
 
-# Outputs
-outputs/
-logs/
+# Outputs (commented out to allow pushing plots and logs)
+# outputs/
+# logs/
 *.log
 
 # OS
 .DS_Store
 Thumbs.db
 
-# Project specific
+# Project specific (old directories, keep ignored)
 Plots/
 slides/
-docs/*.pdf
+# docs/*.pdf  # Commented out - allow dissertation PDF
 
 # Environment variables
 .env
